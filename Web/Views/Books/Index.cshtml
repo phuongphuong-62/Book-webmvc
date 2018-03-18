@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Web.Models.Book>
+@{
+    ViewBag.Title = "Danh Sách Book";
+    var grid = new WebGrid(canPage: true, rowsPerPage:5);
+    grid.Bind(source: Model, rowCount: ViewBag.TotalRows, autoSortAndPage: false);
+}
+
+
+<button class="btn btn-default ">
+    <i class="fa fa-fw fa-check"></i>
+    @Html.ActionLink("Create New", "Create")
+</button>
+
+<h2>@ViewBag.Title</h2>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="#" class="navbar-brand">Search</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            @using (Html.BeginForm("index", "Books", FormMethod.Get, new { @class = "navbar-form navbar-left" }))
+            {
+                <div class="form-group">
+                    <input type="text" name="search" value="@ViewBag.search" class="form-control" placeholder="search" />
+                </div>
+                <button type="submit" value="Search" class="btn btn-success"><i class="fa fa-search"></i></button>
+            }
+           
+        </div>
+    </div>
+</nav>
+
+
+
+@grid.Table(
+                tableStyle: "table table-responsive table-bordered",
+                columns: grid.Columns(
+                    grid.Column(columnName: "BookId", header: "Id"),
+                    grid.Column(columnName: "Title", header: "Title"),
+                    grid.Column(columnName: "Summary", header: "Summary"),
+                    grid.Column(columnName: "Price", header: "Price"),
+                    grid.Column(columnName: "Quantity", header: "Quantity"),
+                    grid.Column(columnName: "CreatedDate", header: "CreatedDate"),
+                    grid.Column(columnName: "ModifiedDate", header: "ModifiedDate"),
+                    grid.Column(columnName: "ViewCount", header: "ViewCount"),
+                    grid.Column("Action", format: @<text>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.BookId }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.BookId })|
+
+                        @Ajax.ActionLink("Delete", "Delete",new { id = item.BookId }, new AjaxOptions {
+                       Confirm="do you want to delete?",
+                       OnComplete="$('#row_"+ @item.BookId + "').remove()",
+                       HttpMethod="Delete"
+
+                   })
+                    </text>, style: "col3Width", canSort: false)
+
+                )
+            )
+
+<div class="row">
+    <div class="col-sm-6">
+        @grid.PagerList(mode: WebGridPagerModes.All, paginationStyle: "pagination pagination-small pagination-right")
+    </div>
+</div>
+
+@Html.Hidden("dir", grid.SortDirection)
+@Html.Hidden("col", grid.SortColumn)
+
+
+
+<script src="~/Scripts/jquery-3.1.1.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script>
+    $(function () {
+        try {
+            var dir = $('#dir').val();
+            var col = $('#col').val();
+            var header = $("th a[href*=" + col + "]");
+            if (dir == "Ascending") {
+                header.text(header.text() + "  ▲")
+            }
+            if (dir == "Descending") {
+                header.text(header.text() + "  ▼");
+            }
+
+        } catch (e) {
+
+        }
+    })
+</script>
